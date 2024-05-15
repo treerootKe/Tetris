@@ -1,0 +1,44 @@
+Canvs Scaler组件
+
+UI Scale Mode：
+1.Constant Pixel Size
+
+2.Scale With Screen Size
+	a.Scale Width Or Height
+	
+	b.Expand
+	Reference Resolution:720,1280 => 720/1280 = 0.5625
+	Target Resolution:x,y => AR = x/y
+	if(AR>0.5625)
+	{
+		Canvas.Height = 1280;
+		//此时，Canvas的Scale会根据y的值进行调整，y↑，Scale↑，且x改变不会改变Scale
+		Scale = y / 1280
+		Canvas.Width = x*Scale;
+	}
+	if(AR<0.5625)
+	{
+		Canvas.Width = 720;
+		//此时，Canvas的Scale会根据x的值进行调整，x↑，Scale↑，且y改变不会改变Scale
+		Scale = x / 720;
+		Canvas.Height = y*Scale;
+	}
+	
+	c.Shrink
+		Reference Resolution:720,1280 => 720/1280 = 0.5625
+	Target Resolution:x,y => AR = x/y
+	if(AR>0.5625)
+	{
+		Canvas.Width = 1280;
+		//此时，Canvas的Scale会根据x的值进行调整，x↑，Scale↑，且y改变不会改变Scale
+		
+		Scale = y / 1280;
+		Canvas.Width = x*Scale;
+	}
+	if(AR<0.5625)
+	{
+		Canvas.Height = 720;
+		//此时，Canvas的Scale会根据y的值进行调整，y↑，Scale↑，且x改变不会改变Scale
+		Scale = x / Canvas.Width;
+		Canvas.Height = y*Scale;
+	}
