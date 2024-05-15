@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 
 # Unity实现俄罗斯方块
 
@@ -314,9 +312,3 @@ void Update() {
 - [UGUI的认识与优化](https://blog.csdn.net/jingangxin666/article/details/83052573)
 
 ## 7. GitHub项目地址:
-
-[**jingangxin36/Tetris**](https://github.com/jingangxin36/Tetris)
-=======
-# Tetris
-正在开发中
->>>>>>> 346381313ab3f537a7e2b5ab74f72f7335a2f494
