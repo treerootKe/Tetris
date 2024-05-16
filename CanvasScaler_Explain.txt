@@ -25,7 +25,7 @@ UI Scale Mode：
 	}
 	
 	c.Shrink
-		Reference Resolution:720,1280 => 720/1280 = 0.5625
+	Reference Resolution:720,1280 => 720/1280 = 0.5625
 	Target Resolution:x,y => AR = x/y
 	if(AR>0.5625)
 	{
