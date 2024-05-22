@@ -1,7 +1,8 @@
+using UnityEngine;
 
 namespace Mine.Control
 {
-    public class PlayerControl
+    public class PlayerControl:MonoBehaviour
     {
         
     }

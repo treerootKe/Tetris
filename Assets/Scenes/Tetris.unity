@@ -7364,6 +7364,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 850835384}
+  - component: {fileID: 850835385}
   m_Layer: 5
   m_Name: shape1
   m_TagString: Untagged
@@ -7394,6 +7395,24 @@ RectTransform:
   m_AnchoredPosition: {x: 135, y: 765}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &850835385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 850835383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70081ef7d74ca544fa8706319d409c12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mShapeType: 2
+  mShapeArea:
+  - {x: 0, y: 0}
+  mBlockArea: []
+  mInitShapeArea: []
+  mChangeShapeArea: []
 --- !u!1 &871088524
 GameObject:
   m_ObjectHideFlags: 0
