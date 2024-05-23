@@ -3,11 +3,10 @@ using UnityEngine;
 
 namespace Mine.ToolClasses
 {
-    public class ObjectPool<T> where T : MonoBehaviour
+    public class ObjectPool<T>where T : Component
     {
         private readonly T mInitElement;
         private readonly Stack<T> mStackElement;
-
         public ObjectPool(T initElement)
         {
             mStackElement = new Stack<T>();
@@ -16,13 +15,8 @@ namespace Mine.ToolClasses
 
         public T Get()
         {
-            if (mStackElement.Count == 0)
-            {
-                var instance = Object.Instantiate(mInitElement.gameObject);
-                mStackElement.Push(instance.GetComponent<T>());
-            }
+            var item = mStackElement.Count == 0 ? Object.Instantiate(mInitElement.gameObject).GetComponent<T>() : mStackElement.Pop();
 
-            var item = mStackElement.Pop();
             item.gameObject.SetActive(true);
             return item;
         }
