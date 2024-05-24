@@ -11,17 +11,55 @@ namespace Mine.ObjectPoolItem
 {
     public class ItemShape: MonoBehaviour
     {
-        public int mShapeType;                              //形状的类型
-        public List<Vector2> mShapeInsideArea;              //形状的内部区域坐标集合(3×3或4×4)
-        public List<Vector2> mBlockPos;                     //方块在整个下落区域的坐标集合
-        public List<List<Vector2>> mChangeShapeInsideArea;        //形状改变后内部坐标集合
+        public int shapeType;                      //形状的类型
+        public int shapeInsideCount;               //形状的内部区域总长度(3×3或4×4)
+        public int[] blockPos;                     //方块在整个下落区域的坐标集合
+        public int[] shapeInsideArea;              //形状当前内部位置集合
+        public List<int[]> shapeChangeInsideArea;  //形状改变后内部坐标集合
+        public Transform[] fourBlock; 
         private void Awake()
         {
-
+            if (shapeType == 0)
+            {
+                shapeInsideCount = 16;
+            }
+            else if (shapeType == 6)
+            {
+                shapeInsideCount = 4;
+            }
+            else
+            {
+                shapeInsideCount = 9;
+            }
+            shapeInsideArea = CommonMenbers.shapeInitInsideArea[shapeType];
+            shapeChangeInsideArea = CommonMenbers.shapeChangeInsideArea[shapeType];
+            fourBlock = new Transform[4];
         }
-        public void InitValues()
+        private void OnEnable()
         {
-
+            if (shapeType == 6)
+            {
+                //O形
+                transform.localPosition = new Vector2(180, 810);
+            }
+            else
+            {
+                transform.localPosition = new Vector2(135, 765);
+            }
+            for (int i = 0; i < fourBlock.Length; i++)
+            {
+                fourBlock[i] = CommonMenbers.blockPool.Get(transform);
+            }
+            SetBlockPos();
+        }
+        public void SetBlockPos()
+        {
+            var pos = transform.localPosition;
+            var posTrans = (int)(pos.y * 10 + pos.x) / 45;
+            for (int i = 0; i < fourBlock.Length; i++)
+            {
+                blockPos[i] = posTrans + shapeInsideArea[i];
+            }
         }
     }
 }

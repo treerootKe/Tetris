@@ -7408,11 +7408,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mShapeType: 2
-  mShapeArea:
-  - {x: 0, y: 0}
-  mBlockArea: []
-  mInitShapeArea: []
-  mChangeShapeArea: []
+  mShapeInsideArea: []
+  mBlockPos: []
 --- !u!1 &871088524
 GameObject:
   m_ObjectHideFlags: 0
