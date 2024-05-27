@@ -14,26 +14,18 @@ namespace Mine.ObjectPoolItem
         public int shapeType;                          //形状的类型
         public int shapeIndex;                         //形状当前变换的位置
         public int[] blockPos;                         //方块在整个下落区域的坐标集合
-        public int[] blockInsidePos;                   //方块在内部位置坐标集合
-        public List<Vector2[]> blockChangeInsidePos;   //形状改变后，方块在内部位置坐标集合
-        public Transform[] fourBlock; 
+        public Transform[] fourBlock;                  //形状内部的四个方块
+        private List<Vector2[]> mBlockChangeInsidePos; //形状改变后，方块在内部位置坐标集合
         private void Awake()
         {
-            blockInsidePos = CommonMembers.blockInitInsidePos[shapeType];
-            blockChangeInsidePos = CommonMembers.blockChangeInsidePos[shapeType];
+            blockPos = new int[4];
             fourBlock = new Transform[4];
+            mBlockChangeInsidePos = CommonMembers.BlockChangeInsidePos[shapeType];
         }
         private void OnEnable()
         {
-            if (shapeType == 6)
-            {
-                //O形
-                transform.localPosition = new Vector2(180, 810);
-            }
-            else
-            {
-                transform.localPosition = new Vector2(135, 765);
-            }
+            transform.localPosition = shapeType == 6 ? new Vector2(180, 810) : new Vector2(135, 765);
+            shapeIndex = 0;
             for (int i = 0; i < fourBlock.Length; i++)
             {
                 fourBlock[i] = CommonMembers.blockPool.Get(transform);
@@ -46,7 +38,9 @@ namespace Mine.ObjectPoolItem
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             for (int i = 0; i < fourBlock.Length; i++)
             {
-                blockPos[i] = posTrans + blockInsidePos[i];
+                var posBlock = (int)(mBlockChangeInsidePos[shapeIndex][i].y * 10 + mBlockChangeInsidePos[shapeIndex][i].x) / 45;
+                fourBlock[i].localPosition = mBlockChangeInsidePos[shapeIndex][i];
+                blockPos[i] = posTrans + posBlock;
             }
         }
     }
