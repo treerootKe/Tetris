@@ -19,20 +19,14 @@ namespace Mine.ObjectPoolItem
         public Transform[] fourBlock; 
         private void Awake()
         {
-            if (shapeType == 0)
+            shapeInsideCount = shapeType switch
             {
-                shapeInsideCount = 16;
-            }
-            else if (shapeType == 6)
-            {
-                shapeInsideCount = 4;
-            }
-            else
-            {
-                shapeInsideCount = 9;
-            }
-            shapeInsideArea = CommonMenbers.shapeInitInsideArea[shapeType];
-            shapeChangeInsideArea = CommonMenbers.shapeChangeInsideArea[shapeType];
+                0 => 16,
+                6 => 4,
+                _ => 9
+            };
+            shapeInsideArea = CommonMenbers.ShapeInitInsideArea[shapeType];
+            shapeChangeInsideArea = CommonMenbers.ShapeChangeInsideArea[shapeType];
             fourBlock = new Transform[4];
         }
         private void OnEnable()
