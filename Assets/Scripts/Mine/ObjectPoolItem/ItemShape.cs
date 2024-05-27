@@ -12,27 +12,15 @@ namespace Mine.ObjectPoolItem
     public class ItemShape: MonoBehaviour
     {
         public int shapeType;                      //形状的类型
-        public int shapeInsideCount;               //形状的内部区域总长度(3×3或4×4)
+        public int shapeIndex;                     //形状当前变换的位置
         public int[] blockPos;                     //方块在整个下落区域的坐标集合
-        public int[] shapeInsideArea;              //形状当前内部位置集合
-        public List<int[]> shapeChangeInsideArea;  //形状改变后内部坐标集合
+        public int[] blockInsidePos;               //方块在内部位置坐标集合
+        public List<Vector2[]> blockChangeInsidePos;   //形状改变后，方块在内部位置坐标集合
         public Transform[] fourBlock; 
         private void Awake()
         {
-            if (shapeType == 0)
-            {
-                shapeInsideCount = 16;
-            }
-            else if (shapeType == 6)
-            {
-                shapeInsideCount = 4;
-            }
-            else
-            {
-                shapeInsideCount = 9;
-            }
-            shapeInsideArea = CommonMenbers.shapeInitInsideArea[shapeType];
-            shapeChangeInsideArea = CommonMenbers.shapeChangeInsideArea[shapeType];
+            blockInsidePos = CommonMenbers.blockInitInsidePos[shapeType];
+            blockChangeInsidePos = CommonMenbers.blockChangeInsidePos[shapeType];
             fourBlock = new Transform[4];
         }
         private void OnEnable()
@@ -58,7 +46,7 @@ namespace Mine.ObjectPoolItem
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             for (int i = 0; i < fourBlock.Length; i++)
             {
-                blockPos[i] = posTrans + shapeInsideArea[i];
+                blockPos[i] = posTrans + blockInsidePos[i];
             }
         }
     }
