@@ -20,7 +20,7 @@ namespace Mine.ObjectPoolItem
         {
             blockPos = new int[4];
             fourBlock = new Transform[4];
-            mBlockRotateInsidePos = CommonMembers.BlockRotateInsidePos[shapeType];
+            mBlockRotateInsidePos = CommonMembers.blockRotateInsidePos[shapeType];
         }
         private void OnEnable()
         {
@@ -36,7 +36,14 @@ namespace Mine.ObjectPoolItem
         //设置方块在整个下落区域的坐标
         public void SetBlockPos()
         {
-            shapeIndex = Math.Abs(shapeIndex);
+            if (shapeIndex < 0)
+            {
+                shapeIndex = 3;
+            }
+            if (shapeIndex > 3)
+            {
+                shapeIndex = 0;
+            }
             var pos = transform.localPosition;
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             for (int i = 0; i < fourBlock.Length; i++)
@@ -56,18 +63,22 @@ namespace Mine.ObjectPoolItem
             }
             var pos = transform.localPosition;
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
-            var blockPos = new int[4];
-            var shapeIndex = Math.Abs(this.shapeIndex - 1);
+            var nextBlockPos = new int[4];
+            var nextShapeIndex = shapeIndex - 1;
+            if (nextShapeIndex < 0)
+            {
+                nextShapeIndex = 3;
+            }
             for (int i = 0; i < 4; i++)
             {
-                var posBlock = (int)(mBlockRotateInsidePos[shapeIndex % 4][i].y * 10 + mBlockRotateInsidePos[shapeIndex % 4][i].x) / 45;
-                blockPos[i] = posTrans + posBlock;
-                if (allPos[blockPos[i]] != null)
+                var posBlock = (int)(mBlockRotateInsidePos[nextShapeIndex][i].y * 10 + mBlockRotateInsidePos[nextShapeIndex][i].x) / 45;
+                nextBlockPos[i] = posTrans + posBlock;
+                if (allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }
             }
-            return false;
+            return true;
         }
         //判断是否可以顺时针旋转
         public bool JudgeIsPossibleRotateB(List<Transform> allPos)
@@ -78,31 +89,40 @@ namespace Mine.ObjectPoolItem
             }
             var pos = transform.localPosition;
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
-            var blockPos = new int[4];
-            var shapeIndex = Math.Abs(this.shapeIndex + 1);
+            var nextBlockPos = new int[4];
+            var nextShapeIndex = shapeIndex + 1;
+            if (nextShapeIndex > 3)
+            {
+                nextShapeIndex = 0;
+            }
             for (int i = 0; i < 4; i++)
             {
-                var posBlock = (int)(mBlockRotateInsidePos[shapeIndex % 4][i].y * 10 + mBlockRotateInsidePos[shapeIndex % 4][i].x) / 45;
-                blockPos[i] = posTrans + posBlock;
-                if (allPos[blockPos[i]] != null)
+                var posBlock = (int)(mBlockRotateInsidePos[nextShapeIndex][i].y * 10 + mBlockRotateInsidePos[nextShapeIndex][i].x) / 45;
+                nextBlockPos[i] = posTrans + posBlock;
+                if (allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }
             }
-            return false;
+            return true;
         }
 
         public bool JudgeIsPossibleMoveX(List<Transform> allPos,bool direction)
         {
-            var blockPos = new int[4];
+            var nextBlockPos = new int[4];
             for (int i = 0; i < 4; i++)
             {
-                if (this.blockPos[i] % 10 == 0 || this.blockPos[i] % 10 == 9)
+                if (blockPos[i] % 10 == 0 && !direction)
                 {
                     return false;
                 }
-                blockPos[i] = direction ? this.blockPos[i] + 1 : this.blockPos[i] - 1;
-                if (allPos[blockPos[i]] != null)
+
+                if (this.blockPos[i] % 10 == 9 && direction)
+                {
+                    return false;
+                }
+                nextBlockPos[i] = direction ? this.blockPos[i] + 1 : this.blockPos[i] - 1;
+                if (allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }
@@ -111,15 +131,15 @@ namespace Mine.ObjectPoolItem
         }
         public bool JudgeIsPossibleMoveY(List<Transform> allPos)
         {
-            var blockPos = new int[4];
+            var nextBlockPos = new int[4];
             for (int i = 0; i < 4; i++)
             {
                 if (this.blockPos[i] < 10)
                 {
                     return false;
                 }
-                blockPos[i] = this.blockPos[i] - 10;
-                if (allPos[blockPos[i]] != null)
+                nextBlockPos[i] = this.blockPos[i] - 10;
+                if (allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }

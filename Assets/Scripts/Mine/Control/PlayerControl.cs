@@ -29,10 +29,10 @@ namespace Mine.Control
             }
 
             //初始化对象池
-            CommonMembers.ShapePool = new ObjectPool<ItemShape>[7];
+            CommonMembers.shapePool = new ObjectPool<ItemShape>[7];
             for (int i = 0; i < 7; i++)
             {
-                CommonMembers.ShapePool[i] = new ObjectPool<ItemShape>(transformPrefab.GetChild(i).GetComponent<ItemShape>());
+                CommonMembers.shapePool[i] = new ObjectPool<ItemShape>(transformPrefab.GetChild(i).GetComponent<ItemShape>());
             }
             CommonMembers.blockPool = new ObjectPool<Transform>(transformPrefab.Find("block"));
             fDropSpeed = new float[3] { 1, 0.5f, 0.25f };
@@ -63,22 +63,16 @@ namespace Mine.Control
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow) && globalItemShape.JudgeIsPossibleMoveX(panelAllPos, false))
             {
-                globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x - 45, 0.001f).OnComplete(() =>
-                {
-                    globalItemShape.SetBlockPos();
-                });
+                globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x - 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
             }
             if (Input.GetKeyDown(KeyCode.RightArrow) && globalItemShape.JudgeIsPossibleMoveX(panelAllPos, true))
             {
-                globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x + 45, 0.001f).OnComplete(() =>
-                {
-                    globalItemShape.SetBlockPos();
-                });
+                globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x + 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
             }
         }
         private void StartTetris()
         {
-            globalItemShape = CommonMembers.ShapePool[0].Get(transformDropPanel);
+            globalItemShape = CommonMembers.shapePool[0].Get(transformDropPanel);
             StartCoroutine(BlockDrop(globalItemShape));
         }
 
@@ -86,10 +80,7 @@ namespace Mine.Control
         {
             while (item.JudgeIsPossibleMoveY(panelAllPos))
             {
-                item.transform.DOLocalMoveY(item.transform.localPosition.y - 45, 0.001f).OnComplete(()=>
-                {
-                    item.SetBlockPos();
-                });
+                item.transform.DOLocalMoveY(item.transform.localPosition.y - 45, 0.001f).OnComplete(item.SetBlockPos);
                 yield return new WaitForSeconds(fDropSpeed[nDropSpeedLevel]);
             }
             for (int i = 0; i < 4; i++)
