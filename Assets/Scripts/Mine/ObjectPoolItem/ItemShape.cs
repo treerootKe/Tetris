@@ -48,8 +48,8 @@ namespace Mine.ObjectPoolItem
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             for (int i = 0; i < fourBlock.Length; i++)
             {
-                var posBlock = (int)(mBlockRotateInsidePos[shapeIndex % 4][i].y * 10 + mBlockRotateInsidePos[shapeIndex % 4][i].x) / 45;
-                fourBlock[i].localPosition = mBlockRotateInsidePos[shapeIndex % 4][i];
+                var posBlock = (int)(mBlockRotateInsidePos[shapeIndex][i].y * 10 + mBlockRotateInsidePos[shapeIndex][i].x) / 45;
+                fourBlock[i].localPosition = mBlockRotateInsidePos[shapeIndex][i];
                 blockPos[i] = posTrans + posBlock;
             }
         }
@@ -57,10 +57,6 @@ namespace Mine.ObjectPoolItem
         //判断是否可以逆时针旋转
         public bool JudgeIsPossibleRotateA(List<Transform> allPos)
         {
-            if (transform.localPosition.x < 0 || transform.localPosition.y < 0)
-            {
-                return false;
-            }
             var pos = transform.localPosition;
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             var nextBlockPos = new int[4];
@@ -71,9 +67,11 @@ namespace Mine.ObjectPoolItem
             }
             for (int i = 0; i < 4; i++)
             {
+                var posX = pos.x + mBlockRotateInsidePos[nextShapeIndex][i].x;
+                var posY = pos.y + mBlockRotateInsidePos[nextShapeIndex][i].y;
                 var posBlock = (int)(mBlockRotateInsidePos[nextShapeIndex][i].y * 10 + mBlockRotateInsidePos[nextShapeIndex][i].x) / 45;
                 nextBlockPos[i] = posTrans + posBlock;
-                if (allPos[nextBlockPos[i]] != null)
+                if (posX > 405 || posX < 0  || posY < 0 || allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }
@@ -83,10 +81,6 @@ namespace Mine.ObjectPoolItem
         //判断是否可以顺时针旋转
         public bool JudgeIsPossibleRotateB(List<Transform> allPos)
         {
-            if (transform.localPosition.x < 0 || transform.localPosition.y < 0)
-            {
-                return false;
-            }
             var pos = transform.localPosition;
             var posTrans = (int)(pos.y * 10 + pos.x) / 45;
             var nextBlockPos = new int[4];
@@ -97,9 +91,11 @@ namespace Mine.ObjectPoolItem
             }
             for (int i = 0; i < 4; i++)
             {
+                var posX = pos.x + mBlockRotateInsidePos[nextShapeIndex][i].x;
+                var posY = pos.y + mBlockRotateInsidePos[nextShapeIndex][i].y;
                 var posBlock = (int)(mBlockRotateInsidePos[nextShapeIndex][i].y * 10 + mBlockRotateInsidePos[nextShapeIndex][i].x) / 45;
                 nextBlockPos[i] = posTrans + posBlock;
-                if (allPos[nextBlockPos[i]] != null)
+                if (posX > 405 || posX < 0 || posY < 0 || allPos[nextBlockPos[i]] != null)
                 {
                     return false;
                 }
@@ -134,11 +130,11 @@ namespace Mine.ObjectPoolItem
             var nextBlockPos = new int[4];
             for (int i = 0; i < 4; i++)
             {
-                if (this.blockPos[i] < 10)
+                if (blockPos[i] < 10)
                 {
                     return false;
                 }
-                nextBlockPos[i] = this.blockPos[i] - 10;
+                nextBlockPos[i] = blockPos[i] - 10;
                 if (allPos[nextBlockPos[i]] != null)
                 {
                     return false;

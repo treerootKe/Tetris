@@ -6,16 +6,16 @@ namespace Mine.ToolClasses
     public class ObjectPool<T>where T : Component
     {
         private readonly T mInitElement;
-        private readonly Stack<T> mStackElement;
+        private readonly Stack<T> mElementStack;
         public ObjectPool(T initElement)
         {
-            mStackElement = new Stack<T>();
-            this.mInitElement = initElement;
+            mElementStack = new Stack<T>();
+            mInitElement = initElement;
         }
 
         public T Get()
         {
-            var item = mStackElement.Count == 0 ? Object.Instantiate(mInitElement.gameObject).GetComponent<T>() : mStackElement.Pop();
+            var item = mElementStack.Count == 0 ? Object.Instantiate(mInitElement.gameObject).GetComponent<T>() : mElementStack.Pop();
 
             item.gameObject.SetActive(true);
             return item;
@@ -23,7 +23,7 @@ namespace Mine.ToolClasses
 
         public T Get(Transform transformParent)
         {
-            var item = mStackElement.Count == 0 ? Object.Instantiate(mInitElement.gameObject).GetComponent<T>() : mStackElement.Pop();
+            var item = mElementStack.Count == 0 ? Object.Instantiate(mInitElement.gameObject).GetComponent<T>() : mElementStack.Pop();
             
             Transform transform;
             (transform = item.transform).SetParent(transformParent);
@@ -35,7 +35,7 @@ namespace Mine.ToolClasses
         public void Recycle(T recycledElement)
         {
             recycledElement.gameObject.SetActive(false);
-            mStackElement.Push(recycledElement);
+            mElementStack.Push(recycledElement);
         }
     }
 }
