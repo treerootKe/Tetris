@@ -23,7 +23,7 @@ namespace Mine.Control
         public float fDropSpeed;
         public bool isFastDrop;
 
-        IEnumerator IEBlockDrop;
+        private IEnumerator mIEBlockDrop;
         private void Awake()
         {
             FindComponent();
@@ -71,17 +71,25 @@ namespace Mine.Control
                 }
                 if (Input.GetKeyDown(KeyCode.LeftArrow) && globalItemShape.JudgeIsPossibleMoveX(panelAllPos, false))
                 {
-                    globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x - 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
+                    var transform1 = globalItemShape.transform;
+                    var pos = transform1.localPosition;
+                    transform1.localPosition = new Vector3(pos.x - 45, pos.y, pos.z);
+                    globalItemShape.SetBlockPos();
+                    // globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x - 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
                 }
                 if (Input.GetKeyDown(KeyCode.RightArrow) && globalItemShape.JudgeIsPossibleMoveX(panelAllPos, true))
                 {
-                    globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x + 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
+                    var transform1 = globalItemShape.transform;
+                    var pos = transform1.localPosition;
+                    transform1.localPosition = new Vector3(pos.x + 45, pos.y, pos.z);
+                    globalItemShape.SetBlockPos();
+                    // globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x + 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
                 }
                 if (Input.GetKeyDown(KeyCode.DownArrow) && isFastDrop)
                 {
                     fDropSpeed = fFastDropSpeed;
-                    StopCoroutine(IEBlockDrop);
-                    StartCoroutine(IEBlockDrop);
+                    StopCoroutine(mIEBlockDrop);
+                    StartCoroutine(mIEBlockDrop);
                 }
             }
         }
@@ -89,22 +97,26 @@ namespace Mine.Control
         {
             isFastDrop = true;
             globalItemShape = CommonMembers.shapePool[UnityEngine.Random.Range(0,7)].Get(transformDropPanel);
-            IEBlockDrop = BlockDrop(globalItemShape);
-            StartCoroutine(IEBlockDrop);
+            mIEBlockDrop = BlockDrop(globalItemShape);
+            StartCoroutine(mIEBlockDrop);
         }
 
-        IEnumerator BlockDrop(ItemShape item)
+        IEnumerator BlockDrop(ItemShape item,bool isRecursion = false)
         {
+            yield return new WaitForSeconds(fDropSpeed);
             while (item.JudgeIsPossibleMoveY(panelAllPos))
             {
-                yield return new WaitForSeconds(fDropSpeed);
                 item.transform.DOLocalMoveY(item.transform.localPosition.y - 45, 0.001f).OnComplete(item.SetBlockPos);
-                yield return new WaitForSeconds(0.001f);
+                yield return new WaitForSeconds(fDropSpeed);
             }
             yield return new WaitForSeconds(0.1f);
             if (item.JudgeIsPossibleMoveY(panelAllPos))
             {
-                StartTerisInMiddle();
+                yield return BlockDrop(item, true);
+            }
+            if (isRecursion)
+            {
+                yield break;
             }
             globalItemShape = null;
             for (int i = 0; i < 4; i++)
@@ -115,11 +127,10 @@ namespace Mine.Control
             yield return BlockDisappear();
             StartTetris();
         }
-        private void StartTerisInMiddle()
+        private void StartTetrisInMiddle()
         {
-            StopCoroutine(IEBlockDrop);
-            IEBlockDrop = BlockDrop(globalItemShape);
-            StartCoroutine(IEBlockDrop);
+            StopCoroutine(mIEBlockDrop);
+            StartCoroutine(mIEBlockDrop);
         }
         IEnumerator BlockDisappear()
         {

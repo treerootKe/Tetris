@@ -113,7 +113,7 @@ namespace Mine.ObjectPoolItem
                     return false;
                 }
 
-                if (this.blockPos[i] % 10 == 9 && direction)
+                if (blockPos[i] % 10 == 9 && direction)
                 {
                     return false;
                 }
