@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Mine.ToolClasses;
 using System;
+using UnityEngine.UI;
 
 namespace Mine.Control
 {
@@ -22,6 +23,15 @@ namespace Mine.Control
         public float fFastDropSpeed;
         public float fDropSpeed;
         public bool isFastDrop;
+        public bool isRotating;
+        public bool isMoveX;
+        private int mScore;
+        private int mNextShape;
+
+        public Text txtScore;
+        public Text txtHistoryScore;
+        public Text txtLevel;
+        public GameObject[] gameobjectsNextShape;
 
         private IEnumerator mIEBlockDrop;
         private void Awake()
@@ -42,6 +52,8 @@ namespace Mine.Control
             CommonMembers.blockPool = new ObjectPool<Transform>(transformPrefab.Find("block"));
             fDropSpeedLevel = new float[3] { 1, 0.5f, 0.25f };
             fFastDropSpeed = 0.05f;
+            fDropSpeed = fDropSpeedLevel[nDropSpeedLevel];
+            mNextShape = UnityEngine.Random.Range(0, 7);
         }
 
         //获取组件
@@ -49,6 +61,14 @@ namespace Mine.Control
         {
             transformDropPanel = transform.Find("BlockDropArea/DropPanel");
             transformPrefab = transform.Find("Prefab");
+            txtScore = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
+            txtHistoryScore = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
+            txtLevel = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
+            gameobjectsNextShape = new GameObject[7];
+            for (int i = 0; i < 7; i++)
+            {
+                gameobjectsNextShape[i] = transform.Find("ScoreArea/imgNextShape").GetChild(i).gameObject;
+            }
         }
         private void OnEnable()
         {
@@ -64,7 +84,7 @@ namespace Mine.Control
                     globalItemShape.shapeIndex--;
                     globalItemShape.SetBlockPos();
                 }
-                if (Input.GetKeyDown(KeyCode.F) && globalItemShape.JudgeIsPossibleRotateB(panelAllPos))
+                if (Input.GetKey(KeyCode.F) && globalItemShape.JudgeIsPossibleRotateB(panelAllPos))
                 {
                     globalItemShape.shapeIndex++;
                     globalItemShape.SetBlockPos();
@@ -96,7 +116,10 @@ namespace Mine.Control
         private void StartTetris()
         {
             isFastDrop = true;
-            globalItemShape = CommonMembers.shapePool[UnityEngine.Random.Range(0,7)].Get(transformDropPanel);
+            gameobjectsNextShape[mNextShape].SetActive(false);
+            globalItemShape = CommonMembers.shapePool[mNextShape].Get(transformDropPanel);
+            mNextShape = UnityEngine.Random.Range(0, 7);
+            gameobjectsNextShape[mNextShape].SetActive(true);
             mIEBlockDrop = BlockDrop(globalItemShape);
             StartCoroutine(mIEBlockDrop);
         }
@@ -157,8 +180,10 @@ namespace Mine.Control
                 }
             }
             yield return new WaitForSeconds(1f);
+            //加分
             if (disappearRow.Count != 0)
             {
+                AddScore(disappearRow.Count);
                 for (int i = disappearRow[disappearRow.Count - 1] + 10; i < 200; i++)
                 {
                     if (panelAllPos[i] != null)
@@ -169,6 +194,14 @@ namespace Mine.Control
                     }
                 }
             }
+        }
+        private void AddScore(int nDisappearLine)
+        {
+            int nOnceScore = nDisappearLine * nDisappearLine * 100;
+            DOTween.To(endvalue =>
+            {
+                txtScore.text = ((int)endvalue).ToString();
+            }, mScore, mScore + nOnceScore, 1).OnComplete(() => mScore += nOnceScore);
         }
     }
 }

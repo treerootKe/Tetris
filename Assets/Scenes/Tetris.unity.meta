@@ -1,7 +1,9 @@
 fileFormatVersion: 2
 guid: 8cbce8b29b1731547b68817d354e6a44
+labels:
+- Architecture
 DefaultImporter:
   externalObjects: {}
   userData: 
-  assetBundleName: 
+  assetBundleName: tetris
   assetBundleVariant: 
