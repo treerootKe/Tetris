@@ -33,6 +33,7 @@ namespace Mine.Control
         public Text txtLevel;
         public GameObject[] gameobjectsNextShape;
 
+        public Button btnRestart;
         private IEnumerator mIEBlockDrop;
         private void Awake()
         {
@@ -121,6 +122,12 @@ namespace Mine.Control
             mNextShape = UnityEngine.Random.Range(0, 7);
             gameobjectsNextShape[mNextShape].SetActive(true);
             mIEBlockDrop = BlockDrop(globalItemShape);
+            if (!globalItemShape.JudgeIsPossibleMoveY(panelAllPos))
+            {
+                Debug.Log("gameover");
+                globalItemShape = null;
+                return;
+            }
             StartCoroutine(mIEBlockDrop);
         }
 
@@ -179,7 +186,6 @@ namespace Mine.Control
                     }
                 }
             }
-            yield return new WaitForSeconds(1f);
             //加分
             if (disappearRow.Count != 0)
             {
@@ -193,6 +199,7 @@ namespace Mine.Control
                         panelAllPos[i] = null;
                     }
                 }
+                yield return new WaitForSeconds(1f);
             }
         }
         private void AddScore(int nDisappearLine)
