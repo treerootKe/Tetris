@@ -11,30 +11,26 @@ namespace Mine.Control
 {
     public class PlayerControl:MonoBehaviour
     {
-        public Transform transformDropPanel;
-        public Transform transformPrefab;
-        
-        public List<Transform> panelAllPos;
+        public Transform transformDropPanel;        //下落区域的父物体
+        public Transform transformPrefab;           //单个方块预制体
+        public List<Transform> panelAllPos;         //下落区域的200个位置
+        public GameObject[] gameobjectsNextShape;   //下一个形状的游戏物体数组
+        public ItemShape globalItemShape;           //当前正在下落的形状
 
-        public ItemShape globalItemShape;
+        private int mScore;                         //当前总得分
+        public bool isFastDrop;                     //形状是否处于快速下落的状态                  
+        private int mNextShape;                     //下一个形状的索引(0--6，分别对应7种形状)
+        public float fDropInterval;                 //形状当前下落间隔
+        public float[] fDropIntervals;              //形状每下落一次，需要等待间隔的数组
+        public int nDropIntervalLevel;              //形状下落间隔等级(0--2)
+        public float fDropIntervalFastest;          //形状快速下落时的等待间隔
 
-        public float[] fDropSpeedLevel;
-        public int nDropSpeedLevel;
-        public float fFastDropSpeed;
-        public float fDropSpeed;
-        public bool isFastDrop;
-        public bool isRotating;
-        public bool isMoveX;
-        private int mScore;
-        private int mNextShape;
+        public Button btnRestart;                   //重新开始按钮
+        public Text txtScore;                       //分数显示文本
+        public Text txtHistoryScore;                //历史分数显示文本
+        public Text txtLevel;                       //形状下落间隔等级显示文本
 
-        public Text txtScore;
-        public Text txtHistoryScore;
-        public Text txtLevel;
-        public GameObject[] gameobjectsNextShape;
-
-        public Button btnRestart;
-        private IEnumerator mIEBlockDrop;
+        private IEnumerator mIEBlockDrop;           //控制形状下落的协程
         private void Awake()
         {
             FindComponent();
@@ -43,7 +39,6 @@ namespace Mine.Control
             {
                 panelAllPos.Add(null);
             }
-
             //初始化对象池
             CommonMembers.shapePool = new ObjectPool<ItemShape>[7];
             for (int i = 0; i < 7; i++)
@@ -51,9 +46,9 @@ namespace Mine.Control
                 CommonMembers.shapePool[i] = new ObjectPool<ItemShape>(transformPrefab.GetChild(i).GetComponent<ItemShape>());
             }
             CommonMembers.blockPool = new ObjectPool<Transform>(transformPrefab.Find("block"));
-            fDropSpeedLevel = new float[3] { 1, 0.5f, 0.25f };
-            fFastDropSpeed = 0.05f;
-            fDropSpeed = fDropSpeedLevel[nDropSpeedLevel];
+            fDropIntervals = new float[3] { 1, 0.5f, 0.25f };
+            fDropIntervalFastest = 0.05f;
+            fDropInterval = fDropIntervals[nDropIntervalLevel];
             mNextShape = UnityEngine.Random.Range(0, 7);
         }
 
@@ -62,6 +57,7 @@ namespace Mine.Control
         {
             transformDropPanel = transform.Find("BlockDropArea/DropPanel");
             transformPrefab = transform.Find("Prefab");
+            btnRestart = transform.Find("imgRestart/btnRestart").GetComponent<Button>();
             txtScore = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
             txtHistoryScore = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
             txtLevel = transform.Find("ScoreArea/imgScore/txtScore").GetComponent<Text>();
@@ -85,7 +81,7 @@ namespace Mine.Control
                     globalItemShape.shapeIndex--;
                     globalItemShape.SetBlockPos();
                 }
-                if (Input.GetKey(KeyCode.F) && globalItemShape.JudgeIsPossibleRotateB(panelAllPos))
+                if (Input.GetKeyDown(KeyCode.F) && globalItemShape.JudgeIsPossibleRotateB(panelAllPos))
                 {
                     globalItemShape.shapeIndex++;
                     globalItemShape.SetBlockPos();
@@ -96,7 +92,6 @@ namespace Mine.Control
                     var pos = transform1.localPosition;
                     transform1.localPosition = new Vector3(pos.x - 45, pos.y, pos.z);
                     globalItemShape.SetBlockPos();
-                    // globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x - 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
                 }
                 if (Input.GetKeyDown(KeyCode.RightArrow) && globalItemShape.JudgeIsPossibleMoveX(panelAllPos, true))
                 {
@@ -104,11 +99,10 @@ namespace Mine.Control
                     var pos = transform1.localPosition;
                     transform1.localPosition = new Vector3(pos.x + 45, pos.y, pos.z);
                     globalItemShape.SetBlockPos();
-                    // globalItemShape.transform.DOLocalMoveX(globalItemShape.transform.localPosition.x + 45, 0.001f).OnComplete(globalItemShape.SetBlockPos);
                 }
                 if (Input.GetKeyDown(KeyCode.DownArrow) && isFastDrop)
                 {
-                    fDropSpeed = fFastDropSpeed;
+                    fDropInterval = fDropIntervalFastest;
                     StopCoroutine(mIEBlockDrop);
                     StartCoroutine(mIEBlockDrop);
                 }
@@ -133,11 +127,11 @@ namespace Mine.Control
 
         IEnumerator BlockDrop(ItemShape item,bool isRecursion = false)
         {
-            yield return new WaitForSeconds(fDropSpeed);
+            yield return new WaitForSeconds(fDropInterval);
             while (item.JudgeIsPossibleMoveY(panelAllPos))
             {
                 item.transform.DOLocalMoveY(item.transform.localPosition.y - 45, 0.001f).OnComplete(item.SetBlockPos);
-                yield return new WaitForSeconds(fDropSpeed);
+                yield return new WaitForSeconds(fDropInterval);
             }
             yield return new WaitForSeconds(0.1f);
             if (item.JudgeIsPossibleMoveY(panelAllPos))
@@ -153,15 +147,11 @@ namespace Mine.Control
             {
                 panelAllPos[item.blockPos[i]] = item.fourBlock[i];
             }
-            fDropSpeed = fDropSpeedLevel[nDropSpeedLevel];
+            fDropInterval = fDropIntervals[nDropIntervalLevel];
             yield return BlockDisappear();
             StartTetris();
         }
-        private void StartTetrisInMiddle()
-        {
-            StopCoroutine(mIEBlockDrop);
-            StartCoroutine(mIEBlockDrop);
-        }
+
         IEnumerator BlockDisappear()
         {
             List<int> disappearRow = new List<int>();
